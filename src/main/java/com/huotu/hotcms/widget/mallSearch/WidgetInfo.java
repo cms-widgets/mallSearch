@@ -11,7 +11,6 @@ package com.huotu.hotcms.widget.mallSearch;
 
 import com.huotu.hotcms.service.common.ContentType;
 import com.huotu.hotcms.service.common.LinkType;
-import com.huotu.hotcms.service.common.SiteType;
 import com.huotu.hotcms.service.entity.Category;
 import com.huotu.hotcms.service.entity.Link;
 import com.huotu.hotcms.service.entity.MallProductCategory;
@@ -81,7 +80,7 @@ public class WidgetInfo implements Widget, PreProcessWidget {
 
     @Override
     public String dependVersion() {
-        return "1.0-SNAPSHOT";
+        return "1.0";
     }
 
     @Override
@@ -179,10 +178,6 @@ public class WidgetInfo implements Widget, PreProcessWidget {
 //        variables.put(SEARCH_PRODUCT, mallProductCategory);
     }
 
-    @Override
-    public SiteType supportedSiteType() {
-        return SiteType.SITE_PC_SHOP;
-    }
 
     /**
      * 初始化数据源

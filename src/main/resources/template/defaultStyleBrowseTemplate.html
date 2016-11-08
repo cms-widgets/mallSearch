@@ -1,7 +1,7 @@
 <!--预览视图-->
 <div xmlns:th="http://www.thymeleaf.org" th:id="${componentId}">
-    <div class="mall-toolbar">
-        <div class="logo" th:object="${link}">
+    <div class="search-bar">
+        <div class="logo">
             <a th:if="${!link.linkType.isPage()}" th:href="${link.linkUrl}" class="notPage">
                 <img res:src="${link.thumbUri}" src="https://misc.360buyimg.com/lib/img/e/logo-201305.png">
             </a>
@@ -9,19 +9,21 @@
                 <img res:src="${link.thumbUri}" src="https://misc.360buyimg.com/lib/img/e/logo-201305.png">
             </a>
         </div>
-        <div class="search">
-            <div class="form">
-                <form method="get" th:action="@{/goodsSearch}">
-                    <input type="hidden" name="searchMallProductSerial" th:value="${searchMallProductSerial}">
-                    <input type="text" name="searchContent" autocomplete="off" class="text" title="搜索框">
+        <div class="search-tool">
+            <div class="search">
+                <form method="get" class="form" th:action="@{/goodsSearch}">
+                    <input type="hidden" name="searchMallProductSerial" th:value="${searchMallProductSerial}"/>
+                    <input type="text" name="searchContent" autocomplete="off" class="text" title="搜索框"/>
                     <button type="submit" class="button">搜索</button>
                 </form>
             </div>
-        </div>
-        <div class="hotwords">
-            <a href="javascript:void(0)" target="_blank" th:each="product:${mallProductList}"
-               th:text="${product.name}" th:href="@{/${product.contentURI}}">翻10倍</a>
+            <div class="hotwords">
+                <a href="javascript:void(0)" target="_blank" th:each="product:${mallProductList}"
+                   th:text="${product.name}" th:href="@{/${product.contentURI}}">翻10倍</a>
+            </div>
         </div>
     </div>
 </div>
+
+
 <!--/预览视图-->
