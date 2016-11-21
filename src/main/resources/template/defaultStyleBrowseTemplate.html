@@ -2,11 +2,8 @@
 <div xmlns:th="http://www.thymeleaf.org" th:id="${componentId}">
     <div class="search-bar">
         <div class="logo">
-            <a th:if="${!link.linkType.isPage()}" th:href="${link.linkUrl}" class="notPage">
-                <img res:src="${link.thumbUri}" src="https://misc.360buyimg.com/lib/img/e/logo-201305.png">
-            </a>
-            <a th:if="${link.linkType.isPage()}" th:href="@{/${link.pagePath}}" class="isPage">
-                <img res:src="${link.thumbUri}" src="https://misc.360buyimg.com/lib/img/e/logo-201305.png">
+            <a th:href="@{/}">
+                <img res:src="${site.logoUri}" src="https://misc.360buyimg.com/lib/img/e/logo-201305.png">
             </a>
         </div>
         <div class="search-tool">
@@ -18,8 +15,13 @@
                 </form>
             </div>
             <div class="hotwords">
-                <a href="javascript:void(0)" target="_blank" th:each="product:${mallProductList}"
-                   th:text="${product.name}" th:href="@{/${product.contentURI}}">翻10倍</a>
+                <span th:each="link:${linkList}">
+                <a href="javascript:void(0)" th:if="${link.linkType.isPage()}" th:text="${link.title}"
+                   th:href="@{/${link.pagePath}}">翻10倍</a>
+
+                <a href="javascript:void(0)" th:if="${!link.linkType.isPage()}" th:text="${link.title}"
+                   th:href="${link.linkUrl}">翻10倍</a>
+                </span>
             </div>
         </div>
     </div>

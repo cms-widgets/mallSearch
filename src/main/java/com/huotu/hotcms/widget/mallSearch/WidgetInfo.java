@@ -15,9 +15,7 @@ import com.huotu.hotcms.service.entity.Category;
 import com.huotu.hotcms.service.entity.Link;
 import com.huotu.hotcms.service.entity.MallProductCategory;
 import com.huotu.hotcms.service.exception.PageNotFoundException;
-import com.huotu.hotcms.service.model.MallProductCategoryModel;
 import com.huotu.hotcms.service.repository.CategoryRepository;
-import com.huotu.hotcms.service.repository.GalleryItemRepository;
 import com.huotu.hotcms.service.repository.LinkRepository;
 import com.huotu.hotcms.service.repository.MallProductCategoryRepository;
 import com.huotu.hotcms.service.service.CategoryService;
@@ -36,7 +34,10 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -44,11 +45,8 @@ import java.util.*;
  */
 public class WidgetInfo implements Widget, PreProcessWidget {
     public static final String LINK_SERIAL = "linkSerial";
-    public static final String MALL_PRODUCT_SERIAL = "mallProductSerial";
     public static final String SEARCH_MALL_PRODUCT_SERIAL = "searchMallProductSerial";
-    public static final String LINK = "link";
-    public static final String MALL_PRODUCT_LIST = "mallProductList";
-    //    private static final String SEARCH_PRODUCT = "searchProduct";
+    public static final String LINK_LIST = "linkList";
     private static final Log log = LogFactory.getLog(WidgetInfo.class);
 
 
@@ -119,27 +117,27 @@ public class WidgetInfo implements Widget, PreProcessWidget {
     @Override
     public ComponentProperties defaultProperties(ResourceService resourceService) throws IOException {
         ComponentProperties properties = new ComponentProperties();
-        LinkRepository categoryRepository = getCMSServiceFromCMSContext(LinkRepository.class);
-        List<Link> list = categoryRepository.findByCategory_Site(CMSContext.RequestContext().getSite());
-        if (list.isEmpty()) {
-            Category category = initCategory(null, "链接数据源");
-            Link link = initLink(category);
-            properties.put(LINK_SERIAL, link.getSerial());
-        } else {
-            properties.put(LINK_SERIAL, list.get(0).getSerial());
-        }
+        CategoryRepository categoryRepository = getCMSServiceFromCMSContext(CategoryRepository.class);
+
         MallProductCategoryRepository mallProductCategoryRepository = CMSContext.RequestContext()
                 .getWebApplicationContext().getBean(MallProductCategoryRepository.class);
         List<MallProductCategory> mallProductCategoryList = mallProductCategoryRepository.findBySite(CMSContext
                 .RequestContext().getSite());
+
         if (mallProductCategoryList.isEmpty()) {
             MallProductCategory mallProductCategory = initMallProductCategory(null);
             initMallProductCategory(mallProductCategory);
-            properties.put(MALL_PRODUCT_SERIAL, mallProductCategory.getSerial());
             properties.put(SEARCH_MALL_PRODUCT_SERIAL, mallProductCategory.getSerial());
         } else {
-            properties.put(MALL_PRODUCT_SERIAL, mallProductCategoryList.get(0).getSerial());
             properties.put(SEARCH_MALL_PRODUCT_SERIAL, mallProductCategoryList.get(0).getSerial());
+        }
+        List<Category> links = categoryRepository.findBySiteAndContentType(CMSContext.RequestContext().getSite(), ContentType.Link);
+        if (links != null && links.isEmpty()) {
+            Category category = initCategory(null, "链接数据源");
+            initLink(category);
+            properties.put(LINK_SERIAL, category.getSerial());
+        } else {
+            properties.put(LINK_SERIAL, links.get(0).getSerial());
         }
         return properties;
     }
@@ -147,35 +145,17 @@ public class WidgetInfo implements Widget, PreProcessWidget {
     @Override
     public void prepareContext(WidgetStyle style, ComponentProperties properties, Map<String, Object> variables
             , Map<String, String> parameters) {
-        String linkSerial = (String) properties.get(LINK_SERIAL);
+        String linkSerial = (String) variables.get(LINK_SERIAL);
         LinkRepository linkRepository = getCMSServiceFromCMSContext(LinkRepository.class);
+        List<Link> links = linkRepository.findByCategory_SiteAndCategory_Serial(CMSContext.RequestContext().getSite(), linkSerial);
         PageInfoRepository pageInfoRepository = getCMSServiceFromCMSContext(PageInfoRepository.class);
-        Link link = linkRepository.findByCategory_SiteAndSerial(CMSContext.RequestContext().getSite(), linkSerial);
-        if (link.getLinkType().isPage()) {
-            PageInfo pageInfo = pageInfoRepository.findOne(link.getPageInfoID());
-            link.setPagePath(pageInfo.getPagePath());
+        for (Link link : links) {
+            if (link.getLinkType().isPage()) {
+                PageInfo pageInfo = pageInfoRepository.getOne(link.getPageInfoID());
+                link.setPagePath(pageInfo != null ? pageInfo.getPagePath() : "");
+            }
         }
-        variables.put(LINK, link);
-
-        String mallProductSerial = (String) variables.get(MALL_PRODUCT_SERIAL);
-        MallProductCategoryRepository mallProductCategoryRepository = getCMSServiceFromCMSContext(MallProductCategoryRepository.class);
-        List<MallProductCategory> mallProductCategories = mallProductCategoryRepository
-                .findBySiteAndParent_Serial(CMSContext.RequestContext().getSite(), mallProductSerial);
-        GalleryItemRepository galleryItemRepository = getCMSServiceFromCMSContext(GalleryItemRepository.class);
-        List<MallProductCategoryModel> list = new ArrayList<>();
-        for (MallProductCategory mallProductCategory : mallProductCategories) {
-            setContentURI(variables, mallProductCategory);
-            MallProductCategoryModel mallProductCategoryModel = mallProductCategory.toMallProductCategoryModel();
-            mallProductCategoryModel.setGalleryItems(galleryItemRepository.findByGallery(mallProductCategory.getGallery()));
-            list.add(mallProductCategoryModel);
-        }
-        variables.put(MALL_PRODUCT_LIST, list);
-//        String searchMallProductSerial = (String) variables.get(SEARCH_MALL_PRODUCT_SERIAL);
-//        MallProductCategory mallProductCategory = mallProductCategoryRepository.findBySerial(searchMallProductSerial);
-//        if (mallProductCategory != null) {
-//            setContentURI(variables, mallProductCategory);
-//        }
-//        variables.put(SEARCH_PRODUCT, mallProductCategory);
+        variables.put(LINK_LIST, links);
     }
 
 
