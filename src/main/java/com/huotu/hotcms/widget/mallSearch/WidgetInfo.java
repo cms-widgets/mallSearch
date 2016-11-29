@@ -121,7 +121,8 @@ public class WidgetInfo implements Widget, PreProcessWidget {
 
         MallProductCategoryRepository mallProductCategoryRepository = CMSContext.RequestContext()
                 .getWebApplicationContext().getBean(MallProductCategoryRepository.class);
-        List<MallProductCategory> mallProductCategoryList = mallProductCategoryRepository.findBySite(CMSContext
+        //todo 过滤已经删除的控件
+        List<MallProductCategory> mallProductCategoryList = mallProductCategoryRepository.findBySiteAndDeletedFalse(CMSContext
                 .RequestContext().getSite());
 
         if (mallProductCategoryList.isEmpty()) {
@@ -131,7 +132,8 @@ public class WidgetInfo implements Widget, PreProcessWidget {
         } else {
             properties.put(SEARCH_MALL_PRODUCT_SERIAL, mallProductCategoryList.get(0).getSerial());
         }
-        List<Category> links = categoryRepository.findBySiteAndContentType(CMSContext.RequestContext().getSite(), ContentType.Link);
+        //todo 过滤已经删除的控件
+        List<Category> links = categoryRepository.findBySiteAndContentTypeAndDeletedFalse(CMSContext.RequestContext().getSite(), ContentType.Link);
         if (links != null && links.isEmpty()) {
             Category category = initCategory(null, "链接数据源");
             initLink(category);
