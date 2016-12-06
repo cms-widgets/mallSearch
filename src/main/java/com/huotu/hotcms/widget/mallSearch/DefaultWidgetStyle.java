@@ -36,9 +36,10 @@ public class DefaultWidgetStyle implements WidgetStyle {
     @Override
     public String description(Locale locale) {
         if (locale.equals(Locale.CHINA)) {
-            return "基于bootstrap样式的风格";
+            return "简单的搜索框，展示商城logo，链接数据源对应的链接内容列表，和搜索框，搜索内容在选择的产品数据源的基础上进行";
         }
-        return "Based on the bootstrap style by mallSearch";
+        return "Simple search box, show mall logo, link to the data source corresponding to the list of links, " +
+                "and search box, search content on the basis of the choice of product data sources";
     }
 
     @Override

@@ -71,9 +71,10 @@ public class WidgetInfo implements Widget, PreProcessWidget {
     @Override
     public String description(Locale locale) {
         if (locale.equals(Locale.CHINA)) {
-            return "这是一个搜索组件，你可以对组件进行自定义修改。";
+            return "这是一个搜索组件，选择链接数据源来进行链接内容列表展示，产品数据源作为搜索内容的基本条件";
         }
-        return "This is a mallSearch,  you can make custom change the component.";
+        return "This is a mallSearch,Select the link data source to display the link content list," +
+                " and the product data source is the basic condition for the content of the search.";
     }
 
     @Override
